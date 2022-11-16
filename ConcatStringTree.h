@@ -18,22 +18,28 @@ public:
         this->key = (pLeft ? pLeft -> length : 0);
         this->length = data.length();
         if(data.length()==0){
-            this->length = pLeft->length+pRight->length;
+            this->length = (pLeft? pLeft->length:0)+(pRight? pRight->length:0);
         }
     }
-    ~BTNode(){};
+    ~BTNode(){
+        
+    };
 };
 
 
 class ConcatStringTree {
 private:
     BTNode *pRoot;
+private:
     char get_(int index, BTNode *pRoot) const;
     int indexOf_(char c, BTNode *pRoot, int count) const;
-    string toStringPreOrder_(BTNode *pRoot) const;
+    void toStringPreOrder_(BTNode *pRoot, string &result) const;
     void toString_(BTNode *pRoot, string &current)const;
+    BTNode* subString_(BTNode *pRoot, int from, int to)const;
+    BTNode* reverse_(BTNode *pRoot)const;
 public:
     BTNode *getRoot()const;
+    ConcatStringTree(BTNode *pRoot);
     ConcatStringTree(const char * s);
     ConcatStringTree(const ConcatStringTree *pLeftString, const ConcatStringTree *pRightString);
     int length() const;
@@ -45,10 +51,16 @@ public:
     ConcatStringTree subString(int from, int to) const;
     ConcatStringTree reverse() const;
 
+    class ParentTree{// AVL tree
+    private:
+        BTNode *pRoot;
+    public:
+        int size() const;
+        string toStringPreOrder() const;
+    };
     int getParTreeSize(const string & query) const;
     string getParTreeStringPreOrder(const string & query) const;
     ~ConcatStringTree(){
-        cout<< pRoot->key<<" is deleted"<<endl;
         delete pRoot; //?
     }
 };
@@ -64,6 +76,8 @@ private:
     int initSize;
 
     friend class ReducedConcatStringTree;
+public:
+
 };
 
 class LitStringHash {

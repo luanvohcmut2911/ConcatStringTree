@@ -9,7 +9,7 @@ void tc0(){
     cout << s3.indexOf('t')<<endl;
     ConcatStringTree s4("_is_zero");
     ConcatStringTree s5 = s3.concat(s4);
-    cout<< s5.indexOf('z')<<endl;
+    cout<< s5.indexOf('m')<<endl;
     cout<<s5.toStringPreOrder()<<endl;
     cout<<s5.toString()<<endl;
 }
@@ -51,14 +51,28 @@ void tc2(){
     ConcatStringTree s1("Hello");
     ConcatStringTree s2(",_t");
     ConcatStringTree s3 = s1.concat(s2);
+    cout << s1.toStringPreOrder() << endl;
     cout << s3.toStringPreOrder() << endl;
     cout << s3.toString() << endl;
-    cout << s3.subString(5, 6).toString() << endl;
+    cout << s3.subString(1, 7).toStringPreOrder() << endl;
     cout << s3.reverse().toString() << endl;
 }
 
+void tc3(){
+    ConcatStringTree s1("Hello");
+    ConcatStringTree s2(",_this");
+    ConcatStringTree s3 = s1.concat(s2);
+    ConcatStringTree s4("_is_zero");
+    ConcatStringTree s5 = s3.concat(s4);
+    cout<<s5.subString(5,10).toStringPreOrder()<<endl;
+    cout<<s5.subString(5,10).toString()<<endl;
+    cout<<s5.subString(5,10).reverse().toStringPreOrder()<<endl;
+}
+
 int main() {
-    tc0();
-    tc1();
+    // tc0();
+    // tc1();
+    // tc2();
+    tc3();
     return 0;
 }
