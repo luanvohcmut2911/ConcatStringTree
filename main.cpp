@@ -14,27 +14,18 @@ void tc0(){
     cout<<s5.toString()<<endl;
 }
 
-void tc05(){
-    ConcatStringTree *s1 = new ConcatStringTree("Hello");
-    ConcatStringTree *s2 = new ConcatStringTree(",_this");
-    ConcatStringTree *s3 = new ConcatStringTree(s1->concat(*s2));
-    ConcatStringTree *s4 = new ConcatStringTree("_is_zero");
-    ConcatStringTree *s5 = new ConcatStringTree(s3->concat(*s4));
-    // delete s5;
-    // delete s3;
-    // delete s4;
-    // delete s2;
-    // delete s1;
-    delete s1;
-    s1=NULL;
-    cout<<s5->toString()<<endl;
-    delete s2;
-    delete s3;
-    delete s4;
-    delete s5;
+void tc3(){
+    ConcatStringTree s1("Hello");
+    ConcatStringTree s2(",_this");
+    ConcatStringTree s3 = s1.concat(s2);
+    ConcatStringTree s4("_is_zero");
+    ConcatStringTree s5 = s3.concat(s4);
+    cout<<s5.subString(5,10).toStringPreOrder()<<endl;
+    cout<<s5.subString(5,10).toString()<<endl;
+    cout<<s5.subString(5,10).reverse().toStringPreOrder()<<endl;
 }
-
-void tc1(){
+// test case BKEL
+void tc21(){	
     ConcatStringTree s1("acbbcab");
     cout << s1.length() << endl;
     cout << s1.get(1) << endl;
@@ -46,33 +37,102 @@ void tc1(){
     }
     cout << s1.indexOf('b') << endl;
 }
-
-void tc2(){
+void tc22(){
     ConcatStringTree s1("Hello");
     ConcatStringTree s2(",_t");
     ConcatStringTree s3 = s1.concat(s2);
-    cout << s1.toStringPreOrder() << endl;
     cout << s3.toStringPreOrder() << endl;
     cout << s3.toString() << endl;
-    cout << s3.subString(1, 7).toStringPreOrder() << endl;
+    cout << s3.subString(5, 6).toString() << endl;
     cout << s3.reverse().toString() << endl;
 }
+void tc23(){
+	
+    ConcatStringTree * s1 = new ConcatStringTree("a");
+    ConcatStringTree * s2 = new ConcatStringTree("b");
+    ConcatStringTree * s3 = new ConcatStringTree("c");
+    ConcatStringTree * s4 = new ConcatStringTree(s1->concat(*s2));
+    ConcatStringTree * s5 = new ConcatStringTree(s1->concat(*s3));
+    
+    cout << s4->getParTreeSize("l") << endl;
+    cout << s4->getParTreeStringPreOrder("l") << endl;
 
-void tc3(){
-    ConcatStringTree s1("Hello");
-    ConcatStringTree s2(",_this");
-    ConcatStringTree s3 = s1.concat(s2);
-    ConcatStringTree s4("_is_zero");
-    ConcatStringTree s5 = s3.concat(s4);
-    cout<<s5.subString(5,10).toStringPreOrder()<<endl;
-    cout<<s5.subString(5,10).toString()<<endl;
-    cout<<s5.subString(5,10).reverse().toStringPreOrder()<<endl;
+    delete s2;
+    delete s4;
+    delete s3;
+    delete s1;
+    delete s5;
+    	
+    // ConcatStringTree * s1 = new ConcatStringTree("a");
+    // ConcatStringTree * s2 = new ConcatStringTree("b");
+    // ConcatStringTree * s3 = new ConcatStringTree(s1->concat(*s2));
+
+    // cout << s3->getParTreeSize("l") << endl;
+    // cout << s3->getParTreeStringPreOrder("l") << endl;
+
+    // delete s1;
+    // delete s2;
+    // delete s3;
 }
+/*
+Expected output:
+    2
+    ParentsTree[(id=1);(id=3)]
+*/
+void tc24(){
+    HashConfig hashConfig(
+        2, //p
+        0.5, //c1
+        0.5, //c2
+        0.75, //lambda
+        2, //alpha
+        4 //initSize
+    );
+    LitStringHash * litStringHash = new LitStringHash(hashConfig);
+    ReducedConcatStringTree * s1 = new ReducedConcatStringTree("a", litStringHash);
+    ReducedConcatStringTree * s2 = new ReducedConcatStringTree("bb", litStringHash);
+    cout << s1->toString() << endl;
+    cout << s2->toString() << endl;
+    ReducedConcatStringTree * s3 = new ReducedConcatStringTree("bb", litStringHash);
 
+    cout << litStringHash->getLastInsertedIndex() << endl;
+    cout << litStringHash->toString() << endl;
+
+    delete litStringHash;
+    delete s2;
+    delete s1;
+    delete s3;
+}
+/*
+Expected output:
+    ConcatStringTree["a"]
+    ConcatStringTree["bb"]
+    2
+    LitStringHash[();(litS="a");(litS="bb");()]
+*/
+void tc25(){
+    ConcatStringTree s1("Hello");
+    cout << "Please focus to id: " << s1.getParTreeStringPreOrder("") << endl;
+    ConcatStringTree s2("an-nyeong-ha-se-yo");
+    cout << "Please focus to id: " << s2.getParTreeStringPreOrder("") << endl;
+    ConcatStringTree s3("nee how");
+    cout << "Please focus to id: " << s3.getParTreeStringPreOrder("") << endl;
+}//pass
+/*
+Expected output:
+    Please focus to id: ParentsTree[(id=1)]
+    Please focus to id: ParentsTree[(id=2)]
+    Please focus to id: ParentsTree[(id=3)]
+*/
+// end test
 int main() {
     // tc0();
     // tc1();
     // tc2();
-    tc3();
+    // tc21();
+    // tc22();
+    tc23();
+    // tc24();
+    // tc25();
     return 0;
 }

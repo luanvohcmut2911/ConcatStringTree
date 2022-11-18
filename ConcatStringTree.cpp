@@ -8,6 +8,7 @@ string reverseString(string str){
     return str;
 }
 
+int BTNode::idCount = 1;
 
 BTNode* ConcatStringTree::getRoot()const{
     return pRoot;
@@ -79,10 +80,10 @@ void ConcatStringTree::toStringPreOrder_(BTNode* pRoot, string &result)const{
         string L = to_string(pRoot->length);
         // string result;
         if(pRoot->data==""){
-            result += "(LL="+ LL + ",L="+ L +",<NULL>);" ;
+            result += ";(LL="+ LL + ",L="+ L +",<NULL>)" ;
         }
         else{
-            result += "(LL="+ LL + ",L="+ L +",\""+ pRoot->data +"\");" ;
+            result += ";(LL="+ LL + ",L="+ L +",\""+ pRoot->data +"\")" ;
         }
         if(pRoot->pLeft || pRoot->pRight){
             toStringPreOrder_(pRoot->pLeft, result);
@@ -94,6 +95,7 @@ void ConcatStringTree::toStringPreOrder_(BTNode* pRoot, string &result)const{
 string ConcatStringTree::toStringPreOrder()const{
     string result = "";
     toStringPreOrder_(pRoot, result);
+    if(result!="")result.erase(result.begin());
     string resultFull = "ConcatStringTree["+ result + "]";
     return resultFull;
 }
@@ -121,6 +123,8 @@ string ConcatStringTree::toString()const{
 }
 ConcatStringTree ConcatStringTree::concat(const ConcatStringTree & others)const{
     ConcatStringTree newNode = ConcatStringTree(this, &others);
+    this->getRoot()->insertNode(newNode.getRoot());
+    others.getRoot()->insertNode(newNode.getRoot());
     return newNode;
 }
 
@@ -164,28 +168,226 @@ ConcatStringTree ConcatStringTree::reverse()const{
 
 // Method for parentTree in ConcatStringTree
 int ConcatStringTree::getParTreeSize(const string &query)const{
-    return 1;
+    BTNode *run = this->pRoot;
+    for(int i=0;i<query.length();i++){
+        if(query[i]=='l'){
+            if(run->pLeft) run = run->pLeft;
+            else throw runtime_error("Invalid query: reaching NULL");
+        }
+        else if(query[i]=='r'){
+            if(run->pRight) run = run->pRight;
+            else throw runtime_error("Invalid query: reaching NULL");
+        }
+    }
+    return run->pTree->size();
 }
 string ConcatStringTree::getParTreeStringPreOrder(const string &query)const{
-    return "";
+    BTNode *run = this->pRoot;
+    for(int i=0;i<query.length();i++){
+        if(query[i]=='l'){
+            if(run->pLeft) run = run->pLeft;
+            else throw runtime_error("Invalid query: reaching NULL");
+        }
+        else if(query[i]=='r'){
+            if(run->pRight) run = run->pRight;
+            else throw runtime_error("Invalid query: reaching NULL");
+        }
+    }
+    return run->pTree->toStringPreOrder();
 }
 // Parent tree
-int ConcatStringTree::ParentTree::size() const{
-    return 1;
+// Rotate AVL
+BTNode::ParentsTree::ParentNode* BTNode::ParentsTree::rotateLeft(ParentNode *newNode){
+    ParentNode *x = newNode->pParentRight;
+    ParentNode *xLeft = x->pParentLeft;
+    x->pParentLeft = newNode;
+    newNode->pParentRight = xLeft;
+    newNode->height = max(newNode->pParentLeft?newNode->pParentLeft->height:0, newNode->pParentRight? newNode->pParentRight->height:0) + 1;
+    x->height = max(x->pParentLeft?x->pParentLeft->height:0, x->pParentRight?x->pParentRight->height:0) + 1;
+    return x;
+    // return NULL;
 }
-string ConcatStringTree::ParentTree::toStringPreOrder() const{
-    return "";
+BTNode::ParentsTree::ParentNode* BTNode::ParentsTree::rotateRight(ParentNode *newNode){
+    ParentNode *x = newNode->pParentLeft;
+    ParentNode *xRight = x->pParentRight;
+    x->pParentRight = newNode;
+    newNode->pParentLeft = xRight;
+    newNode->height = max(newNode->pParentLeft?newNode->pParentLeft->height:0, newNode->pParentRight? newNode->pParentRight->height:0) + 1;
+    x->height = max(x->pParentLeft?x->pParentLeft->height:0, x->pParentRight?x->pParentRight->height:0) + 1;
+    return x;
+    // return NULL;
 }
+
+int BTNode::ParentsTree::balanceFactor(ParentNode *temp){
+    if(!temp) return 0;
+    int heightLeft = 0, heightRight = 0;
+    if (temp->pParentLeft) heightLeft = temp->pParentLeft->height;
+    if (temp->pParentRight) heightRight = temp->pParentRight->height;
+    return heightLeft - heightRight;
+}
+
+int BTNode::ParentsTree::size() const{
+    return this->sizeTree;
+}
+
+void BTNode::ParentsTree::toStringPreOrder_(ParentNode *pRoot, string &current)const {
+    if(pRoot){
+        //(id=1);(id=3)
+        current += ";(id="+to_string(pRoot->id)+")";
+        toStringPreOrder_(pRoot->pParentLeft, current);
+        toStringPreOrder_(pRoot->pParentRight, current);
+    }
+}
+
+string BTNode::ParentsTree::toStringPreOrder() const{
+    string result = "";
+    toStringPreOrder_(this->pRoot, result);
+    if(result!="") result.erase(result.begin());
+    return "ParentsTree["+ result +"]";
+}
+BTNode::ParentsTree::ParentNode* BTNode::ParentsTree::insert_(ParentNode *pRoot, ParentNode *newNode){
+    if(pRoot==NULL){
+        // pRoot = newNode;
+        return newNode;
+    }
+    else{
+        if(newNode->id < pRoot->id){
+            if(pRoot->pParentLeft)insert_(pRoot->pParentLeft, newNode);
+            else pRoot->pParentLeft = newNode;
+        }
+        else if( newNode->id > pRoot->id){
+            if(pRoot->pParentRight)insert_(pRoot->pParentRight, newNode);
+            else pRoot->pParentRight = newNode;
+        }
+        else return pRoot;
+    }
+    pRoot->height = 1 + max(pRoot->pParentLeft? pRoot->pParentLeft->height:0, pRoot->pParentRight? pRoot->pParentRight->height:0);
+    int bF = balanceFactor(pRoot);
+    //Left left case
+    if(bF > 1 && newNode->id < pRoot->pParentLeft->id){
+        pRoot = rotateRight(pRoot);
+    }
+    //right right case
+    if(bF < -1 && newNode->id>pRoot->pParentRight->id){
+        pRoot = rotateLeft(pRoot);
+    }
+    //right left case
+    if(bF < -1 && newNode->id < pRoot->pParentRight->id){
+        pRoot->pParentRight = rotateRight(pRoot->pParentRight);
+        pRoot = rotateLeft (pRoot);
+    }
+    // left right case
+    if(bF >1 && newNode->id > pRoot->pParentLeft->id){
+        pRoot->pParentLeft = rotateLeft(pRoot->pParentLeft);
+        pRoot = rotateRight(pRoot);
+    }
+    return pRoot;
+}
+
+void BTNode::ParentsTree::insert(BTNode *temp){
+    ParentNode *newNode = new ParentNode(temp);
+    this->pRoot = insert_(this->pRoot, newNode);
+    this->sizeTree++;
+}
+BTNode::ParentsTree::ParentNode* BTNode::ParentsTree::maxNodeLeft_(ParentNode *pRoot){
+    if(!pRoot) return 0;
+    if(!pRoot->pParentLeft&&!pRoot->pParentRight) return pRoot;
+    ParentNode *maxLeft = maxNodeLeft_(pRoot->pParentLeft);
+    ParentNode *maxRight = maxNodeLeft_(pRoot->pParentRight);
+    int left = maxLeft ? maxLeft->id: 0;
+    int right = maxRight ? maxRight->id:0;
+    if(left>right) return maxLeft;
+    else return maxRight;
+}
+
+BTNode::ParentsTree::ParentNode* BTNode::ParentsTree::deleteNode_(ParentNode *pRoot, int id){
+    if(pRoot){
+        if(id<pRoot->id){
+            pRoot->pParentLeft = deleteNode_(pRoot->pParentLeft, id);
+        }
+        else if(id>pRoot->id){
+            pRoot->pParentRight = deleteNode_(pRoot->pParentRight, id);
+        }
+        else{
+            //1. No child
+            if(!pRoot->pParentLeft&&!pRoot->pParentRight){
+                // ParentNode *temp = pRoot;
+                // pRoot = NULL;
+                // delete temp;
+                // delete pRoot->pParent;
+                delete pRoot;
+                pRoot = NULL;
+            }
+            //2. Only one child
+            else if(!pRoot->pParentLeft||!pRoot->pParentRight){
+                ParentNode *temp = pRoot->pParentLeft? pRoot->pParentLeft: pRoot->pParentRight;
+                delete pRoot;
+                pRoot = temp;
+                // delete temp->pParent;
+            }
+            //3. Two child
+            else if(pRoot->pParentLeft && pRoot->pParentRight){
+                ParentNode *temp = maxNodeLeft_(pRoot->pParentLeft);
+                pRoot->id = temp->id;
+                // delete pRoot->pParent;
+                pRoot->pParent = temp->pParent;
+                pRoot->pParentLeft = deleteNode_(pRoot->pParentLeft, temp->id);
+            }
+        }
+    }
+    if(pRoot==NULL) return pRoot;
+    pRoot->height = 1 + max((pRoot->pParentLeft? pRoot->pParentLeft->height:0), (pRoot->pParentRight? pRoot->pParentRight->height:0));
+    int bF = balanceFactor(pRoot);
+    //1. LL case
+    if(bF>1&&balanceFactor(pRoot->pParentLeft)>=0){
+        pRoot = rotateRight(pRoot);
+    }
+    //2. LR case
+    if(bF>1&&balanceFactor(pRoot->pParentLeft)<0){
+        pRoot->pParentLeft = rotateLeft(pRoot->pParentLeft);
+        pRoot = rotateRight(pRoot);
+    }
+    //3. RR case
+    if(bF< -1 && balanceFactor(pRoot->pParentRight)<=0){
+        pRoot = rotateLeft(pRoot);
+    }
+    //4. RL case
+    if(bF< -1 && balanceFactor(pRoot->pParentRight)>0){
+        pRoot->pParentRight = rotateRight(pRoot->pParentRight);
+        pRoot = rotateLeft(pRoot);
+    }
+    return pRoot;
+}
+void BTNode::ParentsTree::deleteNode(BTNode *temp){
+    this->pRoot = deleteNode_(this->pRoot, temp->id);
+    this->sizeTree--;
+    if(this->isEmpty()){
+        delete this->pRoot->pParent;
+        delete this;
+    }
+}
+
+bool BTNode::ParentsTree::isEmpty()const{
+    return this->sizeTree == 1;
+}
+
 //ReducedConcatStringTree
 ReducedConcatStringTree::ReducedConcatStringTree(const char *s, LitStringHash *litStringHash){
 
 }
 
 //HashConfig
-
+HashConfig::HashConfig(int p, double c1, double c2, double lambda, int alpha, int initSize){
+    this->p = p;
+    this->c1 = c1;
+    this->c2 = c2;
+    this->lambda = lambda;
+    this->alpha = alpha;
+    this->initSize = initSize;
+}
 //LitStringHash
 LitStringHash::LitStringHash(const HashConfig & hashConfig){
-    
+
 }
 int LitStringHash::getLastInsertedIndex() const{
     return 1;
