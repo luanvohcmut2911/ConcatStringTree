@@ -53,7 +53,12 @@ void tc23(){
     ConcatStringTree * s3 = new ConcatStringTree("c");
     ConcatStringTree * s4 = new ConcatStringTree(s1->concat(*s2));
     ConcatStringTree * s5 = new ConcatStringTree(s1->concat(*s3));
-    
+    ConcatStringTree * s6 = new ConcatStringTree("1234");
+    ConcatStringTree * s7 = new ConcatStringTree("5678");
+    ConcatStringTree * s8 = new ConcatStringTree(s6->concat(*s7));
+
+    cout << s8->getParTreeSize("l") << endl;
+    cout << s8->getParTreeStringPreOrder("l") << endl;
     cout << s4->getParTreeSize("l") << endl;
     cout << s4->getParTreeStringPreOrder("l") << endl;
 
@@ -62,17 +67,9 @@ void tc23(){
     delete s3;
     delete s1;
     delete s5;
-    	
-    // ConcatStringTree * s1 = new ConcatStringTree("a");
-    // ConcatStringTree * s2 = new ConcatStringTree("b");
-    // ConcatStringTree * s3 = new ConcatStringTree(s1->concat(*s2));
-
-    // cout << s3->getParTreeSize("l") << endl;
-    // cout << s3->getParTreeStringPreOrder("l") << endl;
-
-    // delete s1;
-    // delete s2;
-    // delete s3;
+    delete s6;
+    delete s7;
+    delete s8;
 }
 /*
 Expected output:
@@ -131,8 +128,8 @@ int main() {
     // tc2();
     // tc21();
     // tc22();
-    tc23();
-    // tc24();
+    // tc23();
+    tc24();
     // tc25();
     return 0;
 }

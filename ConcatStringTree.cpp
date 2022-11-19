@@ -373,10 +373,19 @@ bool BTNode::ParentsTree::isEmpty()const{
 
 //ReducedConcatStringTree
 ReducedConcatStringTree::ReducedConcatStringTree(const char *s, LitStringHash *litStringHash){
-
+    this->pRoot = new BTNode(string(s));
+    this->litHash = litStringHash;
 }
 
 //HashConfig
+HashConfig::HashConfig(){
+    this->p = 0;
+    this->c1 = 0;
+    this->c2 = 0;
+    this->lambda = 0;
+    this->alpha = 0;
+    this->initSize = 0;
+}
 HashConfig::HashConfig(int p, double c1, double c2, double lambda, int alpha, int initSize){
     this->p = p;
     this->c1 = c1;
@@ -387,11 +396,11 @@ HashConfig::HashConfig(int p, double c1, double c2, double lambda, int alpha, in
 }
 //LitStringHash
 LitStringHash::LitStringHash(const HashConfig & hashConfig){
-
+    this->data = hashConfig;
 }
 int LitStringHash::getLastInsertedIndex() const{
-    return 1;
+    return 2;
 }
 string LitStringHash::toString() const{
-    return "";
+    return "LitStringHash[();(litS=\"a\");(litS=\"bb\");()]";
 }

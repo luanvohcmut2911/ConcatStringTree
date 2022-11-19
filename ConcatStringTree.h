@@ -60,7 +60,6 @@ protected:
     BTNode *pRight;
     int length;
     int key;
-    //
     friend class ConcatStringTree;
 public:
     ParentsTree *pTree;
@@ -94,7 +93,6 @@ public:
         if(this->pRight) {
             this->pRight->pTree->deleteNode(this);
         }
-        
     };
 };
 
@@ -139,7 +137,7 @@ public:
 
 class ReducedConcatStringTree; // forward declaration
 
-class HashConfig {
+class HashConfig { // data for LitStringHash
 private:
     int p;
     double c1, c2;
@@ -150,20 +148,34 @@ private:
     friend class ReducedConcatStringTree;
     friend class LitStringHash;
 public:
+    HashConfig();
     HashConfig(int p, double c1, double c2, double lambda, int alpha, int initSize);
+    ~HashConfig(){
+
+    }
 };
 
-class LitStringHash {
+class LitStringHash {// maybe linked list, need to delete before end
+private:
+    HashConfig data;
 public:
     LitStringHash(const HashConfig & hashConfig);
     int getLastInsertedIndex() const;
     string toString() const;
+    ~LitStringHash(){
+
+    }
 };
 
 class ReducedConcatStringTree: public ConcatStringTree{
+private:
+    LitStringHash *litHash;
 public:
     ReducedConcatStringTree(const char * s, LitStringHash * litStringHash);
     LitStringHash * litStringHash;
+    ~ReducedConcatStringTree(){
+        
+    }
 };
 
 #endif // __CONCAT_STRING_TREE_H__
