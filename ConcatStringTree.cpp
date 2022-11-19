@@ -361,9 +361,8 @@ BTNode::ParentsTree::ParentNode* BTNode::ParentsTree::deleteNode_(ParentNode *pR
 void BTNode::ParentsTree::deleteNode(BTNode *temp){
     this->pRoot = deleteNode_(this->pRoot, temp->id);
     this->sizeTree--;
-    if(this->isEmpty()){
+    if(this->isEmpty()&&this->pRoot->pParent->isCallToDelete){
         delete this->pRoot->pParent;
-        delete this;
     }
 }
 
@@ -397,6 +396,7 @@ HashConfig::HashConfig(int p, double c1, double c2, double lambda, int alpha, in
 //LitStringHash
 LitStringHash::LitStringHash(const HashConfig & hashConfig){
     this->data = hashConfig;
+    this->hashSize = -1;//NULL
 }
 int LitStringHash::getLastInsertedIndex() const{
     return 2;

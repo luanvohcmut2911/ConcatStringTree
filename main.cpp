@@ -1,17 +1,11 @@
 #include "ConcatStringTree.h"
 
 void tc0(){
-    ConcatStringTree s1("Hello");
-    cout << s1.get(1)<<endl;
-    ConcatStringTree s2(",_this");
+    ConcatStringTree s1("a");
+    ConcatStringTree s2("b");
     ConcatStringTree s3 = s1.concat(s2);
-    cout << s3.length()<<endl;
-    cout << s3.indexOf('t')<<endl;
-    ConcatStringTree s4("_is_zero");
-    ConcatStringTree s5 = s3.concat(s4);
-    cout<< s5.indexOf('m')<<endl;
-    cout<<s5.toStringPreOrder()<<endl;
-    cout<<s5.toString()<<endl;
+    cout<< s1.getParTreeSize("")<<endl;
+    cout<< s1.getParTreeStringPreOrder("")<<endl;
 }
 
 void tc3(){
@@ -53,23 +47,15 @@ void tc23(){
     ConcatStringTree * s3 = new ConcatStringTree("c");
     ConcatStringTree * s4 = new ConcatStringTree(s1->concat(*s2));
     ConcatStringTree * s5 = new ConcatStringTree(s1->concat(*s3));
-    ConcatStringTree * s6 = new ConcatStringTree("1234");
-    ConcatStringTree * s7 = new ConcatStringTree("5678");
-    ConcatStringTree * s8 = new ConcatStringTree(s6->concat(*s7));
 
-    cout << s8->getParTreeSize("l") << endl;
-    cout << s8->getParTreeStringPreOrder("l") << endl;
     cout << s4->getParTreeSize("l") << endl;
     cout << s4->getParTreeStringPreOrder("l") << endl;
 
+    delete s1;
     delete s2;
+    delete s5;
     delete s4;
     delete s3;
-    delete s1;
-    delete s5;
-    delete s6;
-    delete s7;
-    delete s8;
 }
 /*
 Expected output:
@@ -123,13 +109,13 @@ Expected output:
 */
 // end test
 int main() {
-    // tc0();
+    tc0();
     // tc1();
     // tc2();
     // tc21();
     // tc22();
-    // tc23();
-    tc24();
+    tc23();
+    // tc24();
     // tc25();
     return 0;
 }

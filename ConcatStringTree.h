@@ -60,6 +60,7 @@ protected:
     BTNode *pRight;
     int length;
     int key;
+    bool isCallToDelete = false;
     friend class ConcatStringTree;
 public:
     ParentsTree *pTree;
@@ -93,6 +94,7 @@ public:
         if(this->pRight) {
             this->pRight->pTree->deleteNode(this);
         }
+        delete this->pTree;
     };
 };
 
@@ -100,6 +102,7 @@ public:
 class ConcatStringTree {
 protected:
     BTNode *pRoot;
+    bool isDeletedRoot = false;
 protected:
     char get_(int index, BTNode *pRoot) const;
     int indexOf_(char c, BTNode *pRoot, int count) const;
@@ -128,8 +131,8 @@ public:
     int getParTreeSize(const string & query) const;
     string getParTreeStringPreOrder(const string & query) const;
     ~ConcatStringTree(){
+        pRoot->isCallToDelete = true;
         if(this->pRoot->pTree->isEmpty()){
-            delete pRoot->pTree;
             delete pRoot;
         }
     }
@@ -158,6 +161,7 @@ public:
 class LitStringHash {// maybe linked list, need to delete before end
 private:
     HashConfig data;
+    int hashSize;
 public:
     LitStringHash(const HashConfig & hashConfig);
     int getLastInsertedIndex() const;
@@ -174,7 +178,7 @@ public:
     ReducedConcatStringTree(const char * s, LitStringHash * litStringHash);
     LitStringHash * litStringHash;
     ~ReducedConcatStringTree(){
-        
+
     }
 };
 
