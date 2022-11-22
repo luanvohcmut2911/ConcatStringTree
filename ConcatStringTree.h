@@ -28,6 +28,7 @@ protected:
             }
         };
     private:
+        // BTNode *saveRoot;
         ParentNode *pRoot;
         int sizeTree;
         void toStringPreOrder_(ParentNode *pRoot, string &current) const;
@@ -39,9 +40,7 @@ protected:
         ParentNode* maxNodeLeft_(ParentNode *pRoot);
     public:
         ParentsTree(BTNode *pRoot = NULL){
-            this->pRoot = new ParentNode(pRoot);//leak
-            // if(pRoot) this->sizeTree = 1;
-            // else this->sizeTree = 0;
+            this->pRoot = new ParentNode(pRoot);
             this->sizeTree = 1;
         }
         void insert(BTNode *temp);//
@@ -50,6 +49,7 @@ protected:
         string toStringPreOrder() const;
         bool isEmpty()const;
         ~ParentsTree(){
+            // cout<<"delete parent tree"<<this->pRoot->id<<endl;
             delete this->pRoot;
         }
     };
@@ -62,6 +62,8 @@ protected:
     int key;
     bool isCallToDelete = false;
     friend class ConcatStringTree;
+    friend class ReducedConcatStringTree;
+    friend class LitStringHash;
 public:
     ParentsTree *pTree;
 public:
@@ -77,7 +79,7 @@ public:
         }
         this->id = idCount;
         idCount++;
-        pTree = new ParentsTree(this);//leak
+        pTree = new ParentsTree(this);
         // pTree->insert(this);
     }
     void insertNode(BTNode *newNode){
@@ -86,15 +88,18 @@ public:
     void deleteNode(BTNode *newNode){
         this->pTree->deleteNode(newNode);
     }
+    bool isEqualNode(BTNode *otherNode){
+        return this->data == otherNode->data;
+    }
     // int getParentTreeSize()const;
     ~BTNode(){
-        if(this->pLeft) {
-            this->pLeft->pTree->deleteNode(this); 
-        }
-        if(this->pRight) {
-            this->pRight->pTree->deleteNode(this);
-        }
         delete this->pTree;
+        if(this->pLeft&&this->pLeft->pTree->isEmpty()&&this->pLeft->isCallToDelete){
+            delete this->pLeft;
+        }
+        if(this->pRight&&this->pRight->pTree->isEmpty()&&this->pRight->isCallToDelete){
+            delete this->pRight;
+        }
     };
 };
 
@@ -132,8 +137,15 @@ public:
     string getParTreeStringPreOrder(const string & query) const;
     ~ConcatStringTree(){
         pRoot->isCallToDelete = true;
+        this->pRoot->pTree->deleteNode(this->pRoot);
+        if(this->pRoot->pLeft) {
+            this->pRoot->pLeft->pTree->deleteNode(this->pRoot); 
+        }
+        if(this->pRoot->pRight) {
+            this->pRoot->pRight->pTree->deleteNode(this->pRoot);
+        }
         if(this->pRoot->pTree->isEmpty()){
-            delete pRoot;
+            delete this->pRoot;
         }
     }
 };
@@ -160,25 +172,53 @@ public:
 
 class LitStringHash {// maybe linked list, need to delete before end
 private:
+    friend class ReducedConcatStringTree;
+    class LitString{
+    public:
+        string litStringData;
+        int pointedCount;
+        int getHashIndex(int p ,int initSize);
+    public:
+        LitString(){
+            this->litStringData = "";
+            this->pointedCount = 0;
+        }
+        LitString(string nodeData){
+            this->litStringData = nodeData;
+            this->pointedCount = 1;
+        }
+        ~LitString(){
+            if(this->pointedCount==0){
+                // delete this->nodeData;
+            }
+        }
+    };
+
+private:
     HashConfig data;
-    int hashSize;
+    LitString *litStringHashMap;
+    int currentSize;
 public:
     LitStringHash(const HashConfig & hashConfig);
     int getLastInsertedIndex() const;
+    int addLitString(string litData);
+    void removeLitString(string litData);
     string toString() const;
     ~LitStringHash(){
-
+        delete []litStringHashMap;
     }
 };
 
 class ReducedConcatStringTree: public ConcatStringTree{
-private:
-    LitStringHash *litHash;
 public:
-    ReducedConcatStringTree(const char * s, LitStringHash * litStringHash);
-    LitStringHash * litStringHash;
+    LitStringHash * litStringHash;//
+    ReducedConcatStringTree(const char * s, LitStringHash * litStringHash);//
+    ReducedConcatStringTree(const ReducedConcatStringTree *pLeftString, const ReducedConcatStringTree *pRightString);//
+    ReducedConcatStringTree concat(const ReducedConcatStringTree &otherS) const;//
     ~ReducedConcatStringTree(){
-
+        if(this->pRoot->data!=""){
+            this->litStringHash->removeLitString(this->pRoot->data);
+        }
     }
 };
 

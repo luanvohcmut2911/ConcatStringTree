@@ -42,20 +42,41 @@ void tc22(){
 }
 void tc23(){
 	
-    ConcatStringTree * s1 = new ConcatStringTree("a");
-    ConcatStringTree * s2 = new ConcatStringTree("b");
-    ConcatStringTree * s3 = new ConcatStringTree("c");
-    ConcatStringTree * s4 = new ConcatStringTree(s1->concat(*s2));
-    ConcatStringTree * s5 = new ConcatStringTree(s1->concat(*s3));
+    ConcatStringTree* s1 = new ConcatStringTree("a");
+    ConcatStringTree* s2 = new ConcatStringTree("b");
+    ConcatStringTree* s3 = new ConcatStringTree("c");
+    ConcatStringTree* s4 = new ConcatStringTree("d");
+    ConcatStringTree* s5 = new ConcatStringTree("e");
+    ConcatStringTree* s6 = new ConcatStringTree(s1->concat(*s2));
+    ConcatStringTree* s7 = new ConcatStringTree(s1->concat(*s3));
+    ConcatStringTree* s8 = new ConcatStringTree(s1->concat(*s4));
+    ConcatStringTree* s9 = new ConcatStringTree(s1->concat(*s5));
 
-    cout << s4->getParTreeSize("l") << endl;
-    cout << s4->getParTreeStringPreOrder("l") << endl;
+
+    cout << s6->getParTreeSize("l") << endl;
+    cout << s6->getParTreeStringPreOrder("l") << endl;
 
     delete s1;
     delete s2;
-    delete s5;
-    delete s4;
     delete s3;
+    cout << s4->toStringPreOrder() << endl;
+    delete s4;
+    delete s5;
+    cout << s6->getParTreeSize("l") << endl;
+    cout << s8->getParTreeStringPreOrder("l") << endl;
+    delete s6;
+    delete s7;
+    delete s8;
+    delete s9;;
+    // delete s9;
+    // delete s8;
+    // delete s7;
+    // delete s6;
+    // delete s5;
+    // delete s4;
+    // delete s3;
+    // delete s2;
+    // delete s1;
 }
 /*
 Expected output:
@@ -73,18 +94,28 @@ void tc24(){
     );
     LitStringHash * litStringHash = new LitStringHash(hashConfig);
     ReducedConcatStringTree * s1 = new ReducedConcatStringTree("a", litStringHash);
+    cout << litStringHash->toString() << endl;
     ReducedConcatStringTree * s2 = new ReducedConcatStringTree("bb", litStringHash);
-    cout << s1->toString() << endl;
-    cout << s2->toString() << endl;
+    cout << litStringHash->toString() << endl;
+    // cout << s1->toString() << endl;
+    // cout << s2->toString() << endl;
     ReducedConcatStringTree * s3 = new ReducedConcatStringTree("bb", litStringHash);
-
+    cout << litStringHash->toString() << endl;
+    ReducedConcatStringTree * s4 = new ReducedConcatStringTree(s1->concat(*s3));
+    // cout << s4->toString() << endl;
     cout << litStringHash->getLastInsertedIndex() << endl;
     cout << litStringHash->toString() << endl;
 
-    delete litStringHash;
+    
     delete s2;
+    cout << litStringHash->toString() << endl;
     delete s1;
+    cout << litStringHash->toString() << endl;
     delete s3;
+    cout << litStringHash->toString() << endl;
+    delete s4;
+    cout << litStringHash->toString() << endl;
+    delete litStringHash;
 }
 /*
 Expected output:
@@ -109,13 +140,13 @@ Expected output:
 */
 // end test
 int main() {
-    tc0();
+    // tc0();
     // tc1();
     // tc2();
     // tc21();
     // tc22();
-    tc23();
-    // tc24();
+    // tc23();
+    tc24();
     // tc25();
     return 0;
 }

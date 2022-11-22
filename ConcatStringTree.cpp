@@ -78,7 +78,6 @@ void ConcatStringTree::toStringPreOrder_(BTNode* pRoot, string &result)const{
     if(pRoot){
         string LL = to_string(pRoot->key);
         string L = to_string(pRoot->length);
-        // string result;
         if(pRoot->data==""){
             result += ";(LL="+ LL + ",L="+ L +",<NULL>)" ;
         }
@@ -110,9 +109,6 @@ void ConcatStringTree::toString_(BTNode *pRoot, string &current)const{
             current += pRoot->data;
         }
     }
-
-    
-    // return current;
 }
 string ConcatStringTree::toString()const{
     // "ConcatStringTree["Hello,_t"]"
@@ -121,10 +117,10 @@ string ConcatStringTree::toString()const{
     string result = "ConcatStringTree[\"" + getResult + "\"]";
     return result;
 }
-ConcatStringTree ConcatStringTree::concat(const ConcatStringTree & others)const{
-    ConcatStringTree newNode = ConcatStringTree(this, &others);
+ConcatStringTree ConcatStringTree::concat(const ConcatStringTree & otherS)const{
+    ConcatStringTree newNode = ConcatStringTree(this, &otherS);
     this->getRoot()->insertNode(newNode.getRoot());
-    others.getRoot()->insertNode(newNode.getRoot());
+    otherS.getRoot()->insertNode(newNode.getRoot());
     return newNode;
 }
 
@@ -212,8 +208,8 @@ BTNode::ParentsTree::ParentNode* BTNode::ParentsTree::rotateRight(ParentNode *ne
     ParentNode *xRight = x->pParentRight;
     x->pParentRight = newNode;
     newNode->pParentLeft = xRight;
-    newNode->height = max(newNode->pParentLeft?newNode->pParentLeft->height:0, newNode->pParentRight? newNode->pParentRight->height:0) + 1;
     x->height = max(x->pParentLeft?x->pParentLeft->height:0, x->pParentRight?x->pParentRight->height:0) + 1;
+    newNode->height = max(newNode->pParentLeft?newNode->pParentLeft->height:0, newNode->pParentRight? newNode->pParentRight->height:0) + 1;
     return x;
     // return NULL;
 }
@@ -247,17 +243,14 @@ string BTNode::ParentsTree::toStringPreOrder() const{
 }
 BTNode::ParentsTree::ParentNode* BTNode::ParentsTree::insert_(ParentNode *pRoot, ParentNode *newNode){
     if(pRoot==NULL){
-        // pRoot = newNode;
         return newNode;
     }
     else{
         if(newNode->id < pRoot->id){
-            if(pRoot->pParentLeft)insert_(pRoot->pParentLeft, newNode);
-            else pRoot->pParentLeft = newNode;
+            pRoot->pParentLeft = insert_(pRoot->pParentLeft, newNode);
         }
         else if( newNode->id > pRoot->id){
-            if(pRoot->pParentRight)insert_(pRoot->pParentRight, newNode);
-            else pRoot->pParentRight = newNode;
+            pRoot->pParentRight = insert_(pRoot->pParentRight, newNode);
         }
         else return pRoot;
     }
@@ -311,10 +304,6 @@ BTNode::ParentsTree::ParentNode* BTNode::ParentsTree::deleteNode_(ParentNode *pR
         else{
             //1. No child
             if(!pRoot->pParentLeft&&!pRoot->pParentRight){
-                // ParentNode *temp = pRoot;
-                // pRoot = NULL;
-                // delete temp;
-                // delete pRoot->pParent;
                 delete pRoot;
                 pRoot = NULL;
             }
@@ -323,7 +312,6 @@ BTNode::ParentsTree::ParentNode* BTNode::ParentsTree::deleteNode_(ParentNode *pR
                 ParentNode *temp = pRoot->pParentLeft? pRoot->pParentLeft: pRoot->pParentRight;
                 delete pRoot;
                 pRoot = temp;
-                // delete temp->pParent;
             }
             //3. Two child
             else if(pRoot->pParentLeft && pRoot->pParentRight){
@@ -361,21 +349,29 @@ BTNode::ParentsTree::ParentNode* BTNode::ParentsTree::deleteNode_(ParentNode *pR
 void BTNode::ParentsTree::deleteNode(BTNode *temp){
     this->pRoot = deleteNode_(this->pRoot, temp->id);
     this->sizeTree--;
-    if(this->isEmpty()&&this->pRoot->pParent->isCallToDelete){
-        delete this->pRoot->pParent;
-    }
 }
 
 bool BTNode::ParentsTree::isEmpty()const{
-    return this->sizeTree == 1;
+    return this->sizeTree == 0;
 }
 
 //ReducedConcatStringTree
 ReducedConcatStringTree::ReducedConcatStringTree(const char *s, LitStringHash *litStringHash){
-    this->pRoot = new BTNode(string(s));
-    this->litHash = litStringHash;
+    // this->pRoot = new BTNode(string(s));
+    this->litStringHash = litStringHash;
+    int index = this->litStringHash->addLitString(s);
+    string getString = this->litStringHash->litStringHashMap[index].litStringData;
+    this->pRoot = new BTNode(getString);
 }
-
+ReducedConcatStringTree::ReducedConcatStringTree(const ReducedConcatStringTree *pLeftString, const ReducedConcatStringTree *pRightString){
+    this->pRoot = new BTNode ("", (pLeftString? pLeftString->getRoot(): NULL), (pRightString? pRightString->getRoot(): NULL));
+}
+ReducedConcatStringTree ReducedConcatStringTree::concat(const ReducedConcatStringTree &otherS)const {
+    ReducedConcatStringTree newNode = ReducedConcatStringTree(this, &otherS);
+    this->getRoot()->insertNode(newNode.getRoot());
+    otherS.getRoot()->insertNode(newNode.getRoot());
+    return newNode;
+}
 //HashConfig
 HashConfig::HashConfig(){
     this->p = 0;
@@ -396,11 +392,71 @@ HashConfig::HashConfig(int p, double c1, double c2, double lambda, int alpha, in
 //LitStringHash
 LitStringHash::LitStringHash(const HashConfig & hashConfig){
     this->data = hashConfig;
-    this->hashSize = -1;//NULL
+    this->litStringHashMap = new LitString[this->data.initSize];
+    this->currentSize = this->data.initSize;
 }
-int LitStringHash::getLastInsertedIndex() const{
-    return 2;
+int LitStringHash::getLastInsertedIndex() const{ // O(1)
+    for(int i = this->currentSize-1;i>=0;i--){
+        if(this->litStringHashMap[i].litStringData != ""){
+            return i;
+        }
+    }
+    return -1;
 }
 string LitStringHash::toString() const{
-    return "LitStringHash[();(litS=\"a\");(litS=\"bb\");()]";
+    string result = "LitStringHash[";
+    for(int i=0;i<this->currentSize;i++){
+        result += "(";
+        if(this->litStringHashMap[i].litStringData!=""){
+            result += "litS=\"";
+            result += litStringHashMap[i].litStringData;
+            result += "\"";
+        }
+        result += ");";
+        // cout<<this->litStringHashMap[i].pointedCount<<endl;
+    }
+    if(result[result.length()-1]==';') result.erase(result.end()-1);
+    result+="]";
+    return result;
+}
+int LitStringHash::addLitString(string litData){
+    for(int i=0;i<this->currentSize;i++){
+        if(this->litStringHashMap[i].litStringData==litData){
+            this->litStringHashMap[i].pointedCount++;
+            return i;
+        }
+    }
+    LitString newLitString = LitString(litData);
+    int indexNewLitString = newLitString.getHashIndex(this->data.p,this->currentSize);
+    this->litStringHashMap[indexNewLitString] = newLitString;
+    return indexNewLitString;
+}
+void LitStringHash::removeLitString(string litData){
+    for(int i=0;i<this->currentSize;i++){
+        if(this->litStringHashMap[i].litStringData==litData){
+            this->litStringHashMap[i].pointedCount--;
+            if(this->litStringHashMap[i].pointedCount==0){
+                this->litStringHashMap[i].litStringData="";
+            }
+            break;
+        }
+    }
+}
+
+int pow (int a, int b){
+    int res = 1;
+    for(int i=1;i<=b;i++){
+        res *= a;
+    }
+    return res;
+}
+
+int LitStringHash::LitString::getHashIndex(int p, int initSize){
+    string data = this->litStringData;
+    int dataLength = data.length();
+    int index = 0;
+    for(int i=0;i<dataLength;i++){
+        index += static_cast<int>(data[i])*pow(p, i);
+    }
+    return index % initSize;
 }
