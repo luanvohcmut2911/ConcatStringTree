@@ -149,9 +149,8 @@ public:
         }
     }
 };
-
+static bool deleteHash=false;
 class ReducedConcatStringTree; // forward declaration
-
 class HashConfig { // data for LitStringHash
 private:
     int p;
@@ -164,12 +163,11 @@ private:
     friend class LitStringHash;
 public:
     HashConfig();
-    HashConfig(int p, double c1, double c2, double lambda, int alpha, int initSize);
+    HashConfig(int p, double c1, double c2, double lambda, double alpha, int initSize);
     ~HashConfig(){
 
     }
 };
-
 class LitStringHash {// maybe linked list, need to delete before end
 private:
     friend class ReducedConcatStringTree;
@@ -177,7 +175,7 @@ private:
     public:
         string litStringData;
         int pointedCount;
-        int getHashIndex(int p ,int initSize);
+        int getHashIndex(HashConfig dataConfig, LitString *litStringHashMap);
     public:
         LitString(){
             this->litStringData = "";
@@ -198,26 +196,43 @@ private:
     HashConfig data;
     LitString *litStringHashMap;
     int currentSize;
+    int lastElement;
 public:
     LitStringHash(const HashConfig & hashConfig);
     int getLastInsertedIndex() const;
     int addLitString(string litData);
     void removeLitString(string litData);
+    void checkReHash();
+    void reHashing();
     string toString() const;
     ~LitStringHash(){
-        delete []litStringHashMap;
+        deleteHash = true;
+        // cout<<"current: "<<deleteHash<<endl; 
+        if(this->lastElement==-1){
+            delete []litStringHashMap;
+        }
     }
 };
-
+// static LitStringHash * litStringHashStatic = NULL;
 class ReducedConcatStringTree: public ConcatStringTree{
 public:
     LitStringHash * litStringHash;//
+    LitStringHash::LitString *copyMap = NULL;
+    int mapSize;
+    
     ReducedConcatStringTree(const char * s, LitStringHash * litStringHash);//
     ReducedConcatStringTree(const ReducedConcatStringTree *pLeftString, const ReducedConcatStringTree *pRightString);//
     ReducedConcatStringTree concat(const ReducedConcatStringTree &otherS) const;//
+    void removeLitString(bool deleteHash);
     ~ReducedConcatStringTree(){
+        // cout<<"current: "<<deleteHash<<endl;
         if(this->pRoot->data!=""){
-            this->litStringHash->removeLitString(this->pRoot->data);
+            if(deleteHash == false){
+                this->litStringHash->removeLitString(this->pRoot->data);
+            }
+            else{
+                this->removeLitString(deleteHash);
+            }
         }
     }
 };

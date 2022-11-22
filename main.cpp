@@ -94,28 +94,28 @@ void tc24(){
     );
     LitStringHash * litStringHash = new LitStringHash(hashConfig);
     ReducedConcatStringTree * s1 = new ReducedConcatStringTree("a", litStringHash);
-    cout << litStringHash->toString() << endl;
+    // cout << litStringHash->toString() << endl;
     ReducedConcatStringTree * s2 = new ReducedConcatStringTree("bb", litStringHash);
-    cout << litStringHash->toString() << endl;
+    // cout << litStringHash->toString() << endl;
     // cout << s1->toString() << endl;
     // cout << s2->toString() << endl;
     ReducedConcatStringTree * s3 = new ReducedConcatStringTree("bb", litStringHash);
-    cout << litStringHash->toString() << endl;
+    // cout << litStringHash->toString() << endl;
     ReducedConcatStringTree * s4 = new ReducedConcatStringTree(s1->concat(*s3));
     // cout << s4->toString() << endl;
+    
     cout << litStringHash->getLastInsertedIndex() << endl;
     cout << litStringHash->toString() << endl;
-
-    
-    delete s2;
-    cout << litStringHash->toString() << endl;
-    delete s1;
-    cout << litStringHash->toString() << endl;
-    delete s3;
-    cout << litStringHash->toString() << endl;
-    delete s4;
-    cout << litStringHash->toString() << endl;
     delete litStringHash;
+    delete s2;
+    // cout << litStringHash->toString() << endl;
+    delete s1;
+    // cout << litStringHash->toString() << endl;
+    delete s3;
+    // cout << litStringHash->toString() << endl;
+    delete s4;
+    // delete litStringHash;
+
 }
 /*
 Expected output:

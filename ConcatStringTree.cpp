@@ -9,7 +9,6 @@ string reverseString(string str){
 }
 
 int BTNode::idCount = 1;
-
 BTNode* ConcatStringTree::getRoot()const{
     return pRoot;
 }
@@ -357,8 +356,10 @@ bool BTNode::ParentsTree::isEmpty()const{
 
 //ReducedConcatStringTree
 ReducedConcatStringTree::ReducedConcatStringTree(const char *s, LitStringHash *litStringHash){
-    // this->pRoot = new BTNode(string(s));
     this->litStringHash = litStringHash;
+    int mapSize = litStringHash->currentSize;
+    this->copyMap = litStringHash->litStringHashMap;
+    this->mapSize = mapSize;
     int index = this->litStringHash->addLitString(s);
     string getString = this->litStringHash->litStringHashMap[index].litStringData;
     this->pRoot = new BTNode(getString);
@@ -372,6 +373,26 @@ ReducedConcatStringTree ReducedConcatStringTree::concat(const ReducedConcatStrin
     otherS.getRoot()->insertNode(newNode.getRoot());
     return newNode;
 }
+void ReducedConcatStringTree::removeLitString(bool deleteHash){
+    int count = 0;
+    for(int i=0;i<this->mapSize;i++){
+        if(this->copyMap[i].litStringData!=""){
+            count++;
+        }
+        if(this->copyMap[i].litStringData==this->pRoot->data){
+            this->copyMap[i].pointedCount--;
+            if(this->copyMap[i].pointedCount==0){
+                this->copyMap[i].litStringData="";
+                count--;
+            }
+            
+        }
+    }
+    // cout<<deleteHash<<endl;
+    if(count == 0&&deleteHash){
+        delete[] this->copyMap;
+    }
+}
 //HashConfig
 HashConfig::HashConfig(){
     this->p = 0;
@@ -381,7 +402,7 @@ HashConfig::HashConfig(){
     this->alpha = 0;
     this->initSize = 0;
 }
-HashConfig::HashConfig(int p, double c1, double c2, double lambda, int alpha, int initSize){
+HashConfig::HashConfig(int p, double c1, double c2, double lambda, double alpha, int initSize){
     this->p = p;
     this->c1 = c1;
     this->c2 = c2;
@@ -394,14 +415,10 @@ LitStringHash::LitStringHash(const HashConfig & hashConfig){
     this->data = hashConfig;
     this->litStringHashMap = new LitString[this->data.initSize];
     this->currentSize = this->data.initSize;
+    this->lastElement = -1;
 }
 int LitStringHash::getLastInsertedIndex() const{ // O(1)
-    for(int i = this->currentSize-1;i>=0;i--){
-        if(this->litStringHashMap[i].litStringData != ""){
-            return i;
-        }
-    }
-    return -1;
+    return this->lastElement;
 }
 string LitStringHash::toString() const{
     string result = "LitStringHash[";
@@ -419,6 +436,29 @@ string LitStringHash::toString() const{
     result+="]";
     return result;
 }
+void LitStringHash::checkReHash(){
+    int countElement = 0;
+    for(int i=0;i<this->currentSize;i++){
+        if(this->litStringHashMap[i].litStringData!=""){
+            countElement++;
+        }
+    }
+    double loadFactor = countElement/this->currentSize;
+    if(loadFactor>this->data.lambda) {
+        reHashing();
+    }
+}
+void LitStringHash::reHashing(){
+    // cout<<"rehashing"<<endl;
+    int newSize = (int)(this->data.alpha * this->currentSize);
+    LitString *litStringRehashMap = new LitString[newSize];
+    for(int i=0;i<this->currentSize;i++){
+        this->litStringHashMap[i] = litStringRehashMap[i];
+    }
+    delete[] this->litStringHashMap;
+    this->litStringHashMap = litStringRehashMap;
+    this->currentSize = newSize;
+}
 int LitStringHash::addLitString(string litData){
     for(int i=0;i<this->currentSize;i++){
         if(this->litStringHashMap[i].litStringData==litData){
@@ -427,8 +467,10 @@ int LitStringHash::addLitString(string litData){
         }
     }
     LitString newLitString = LitString(litData);
-    int indexNewLitString = newLitString.getHashIndex(this->data.p,this->currentSize);
+    int indexNewLitString = newLitString.getHashIndex(this->data, this->litStringHashMap);
     this->litStringHashMap[indexNewLitString] = newLitString;
+    if(this->lastElement<indexNewLitString) this->lastElement = indexNewLitString;
+    checkReHash();// check to renew hashmap
     return indexNewLitString;
 }
 void LitStringHash::removeLitString(string litData){
@@ -438,12 +480,25 @@ void LitStringHash::removeLitString(string litData){
             if(this->litStringHashMap[i].pointedCount==0){
                 this->litStringHashMap[i].litStringData="";
             }
+            //redefine lastElement
+            if(i==this->lastElement){
+                this->lastElement = -1;
+                for(int i=0;i<this->currentSize;i++){
+                    if(this->litStringHashMap[i].litStringData!=""){
+                        this->lastElement = i;
+                    }
+                }
+            }
+            // if(this->lastElement==-1){
+            //     delete []litStringHashMap;
+            // }
             break;
         }
     }
 }
 
 int pow (int a, int b){
+    if(a==0) return 0;
     int res = 1;
     for(int i=1;i<=b;i++){
         res *= a;
@@ -451,12 +506,23 @@ int pow (int a, int b){
     return res;
 }
 
-int LitStringHash::LitString::getHashIndex(int p, int initSize){
+int LitStringHash::LitString::getHashIndex(HashConfig dataConfig, LitString *litStringHashMap){
     string data = this->litStringData;
     int dataLength = data.length();
     int index = 0;
     for(int i=0;i<dataLength;i++){
-        index += static_cast<int>(data[i])*pow(p, i);
+        index += static_cast<int>(data[i])*pow(dataConfig.p, i);
     }
-    return index % initSize;
+    index %= dataConfig.initSize;
+    // Search function
+    // bool foundIndex = true;
+    for(int i=0;i<dataConfig.initSize;i++){
+        int probingIndex = (index + (int)dataConfig.c1*i % dataConfig.initSize + 
+                                    (int) dataConfig.c2*pow(i, 2) %dataConfig.initSize) 
+                            %dataConfig.initSize;
+        if(litStringHashMap[probingIndex].litStringData == ""){
+            return probingIndex;
+        }
+    }
+    throw runtime_error("No possible slot");
 }
