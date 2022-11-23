@@ -143,7 +143,10 @@ ConcatStringTree ConcatStringTree::subString(int from, int to)const{
         throw logic_error("Invalid range");
     }
     ConcatStringTree result = ConcatStringTree(subString_(getRoot(), from, to));
-    return ConcatStringTree(subString_(getRoot(), from, to));
+    result.isSubRev = true;
+    result.pRoot->isSubRev = true;
+    // return ConcatStringTree(subString_(getRoot(), from, to));
+    return result;
 }
 
 BTNode* ConcatStringTree::reverse_(BTNode *pRoot)const{
@@ -158,6 +161,8 @@ BTNode* ConcatStringTree::reverse_(BTNode *pRoot)const{
 }//leak
 ConcatStringTree ConcatStringTree::reverse()const{
     ConcatStringTree result = ConcatStringTree(reverse_(getRoot()));
+    result.isSubRev = true;
+    result.pRoot->isSubRev = true;
     return result;
 }
 

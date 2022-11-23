@@ -61,6 +61,7 @@ protected:
     int length;
     int key;
     bool isCallToDelete = false;
+    bool isSubRev = false;
     friend class ConcatStringTree;
     friend class ReducedConcatStringTree;
     friend class LitStringHash;
@@ -93,12 +94,19 @@ public:
     }
     // int getParentTreeSize()const;
     ~BTNode(){
-        delete this->pTree;
-        if(this->pLeft&&this->pLeft->pTree->isEmpty()&&this->pLeft->isCallToDelete){
-            delete this->pLeft;
+        if(this->isSubRev == false){
+            delete this->pTree;
+            if(this->pLeft&&this->pLeft->pTree->isEmpty()&&this->pLeft->isCallToDelete){
+                delete this->pLeft;
+            }
+            if(this->pRight&&this->pRight->pTree->isEmpty()&&this->pRight->isCallToDelete){
+                delete this->pRight;
+            }
         }
-        if(this->pRight&&this->pRight->pTree->isEmpty()&&this->pRight->isCallToDelete){
-            delete this->pRight;
+        else{
+            delete this->pTree;
+            if(this->pLeft) delete this->pLeft;
+            if(this->pRight) delete this->pRight;
         }
     };
 };
@@ -108,6 +116,7 @@ class ConcatStringTree {
 protected:
     BTNode *pRoot;
     bool isDeletedRoot = false;
+    bool isSubRev = false;
 protected:
     char get_(int index, BTNode *pRoot) const;
     int indexOf_(char c, BTNode *pRoot, int count) const;
@@ -136,17 +145,23 @@ public:
     int getParTreeSize(const string & query) const;
     string getParTreeStringPreOrder(const string & query) const;
     ~ConcatStringTree(){
-        pRoot->isCallToDelete = true;
-        this->pRoot->pTree->deleteNode(this->pRoot);
-        if(this->pRoot->pLeft) {
-            this->pRoot->pLeft->pTree->deleteNode(this->pRoot); 
-        }
-        if(this->pRoot->pRight) {
-            this->pRoot->pRight->pTree->deleteNode(this->pRoot);
-        }
-        if(this->pRoot->pTree->isEmpty()){
+        if(isSubRev){
             delete this->pRoot;
         }
+        else{
+            pRoot->isCallToDelete = true;
+            this->pRoot->pTree->deleteNode(this->pRoot);
+            if(this->pRoot->pLeft) {
+                this->pRoot->pLeft->pTree->deleteNode(this->pRoot); 
+            }
+            if(this->pRoot->pRight) {
+                this->pRoot->pRight->pTree->deleteNode(this->pRoot);
+            }
+            if(this->pRoot->pTree->isEmpty()){
+                delete this->pRoot;
+            }
+        }
+        
     }
 };
 static bool deleteHash=false;

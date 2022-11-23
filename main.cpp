@@ -56,27 +56,34 @@ void tc23(){
     cout << s6->getParTreeSize("l") << endl;
     cout << s6->getParTreeStringPreOrder("l") << endl;
 
-    delete s1;
-    delete s2;
-    delete s3;
-    cout << s4->toStringPreOrder() << endl;
-    delete s4;
-    delete s5;
-    cout << s6->getParTreeSize("l") << endl;
-    cout << s8->getParTreeStringPreOrder("l") << endl;
-    delete s6;
-    delete s7;
-    delete s8;
-    delete s9;;
-    // delete s9;
-    // delete s8;
-    // delete s7;
-    // delete s6;
-    // delete s5;
-    // delete s4;
-    // delete s3;
-    // delete s2;
     // delete s1;
+    // delete s2;
+    // delete s3;
+    // // cout << s6->getParTreeSize("l") << endl;
+    // // cout << s8->getParTreeStringPreOrder("l") << endl;
+    // delete s4;
+    // delete s5;
+    // cout << s6->getParTreeSize("l") << endl;
+    // cout << s8->getParTreeStringPreOrder("l") << endl;
+    // delete s6;
+    // cout << s8->getParTreeSize("l") << endl;
+    // cout << s8->getParTreeStringPreOrder("l") << endl;
+    // delete s7;
+    // cout << s8->getParTreeSize("l") << endl;
+    // cout << s8->getParTreeStringPreOrder("l") << endl;
+    // delete s8;
+    // cout << s9->getParTreeSize("l") << endl;
+    // cout << s9->getParTreeStringPreOrder("l") << endl;
+    // delete s9;
+    delete s9;
+    delete s8;
+    delete s7;
+    delete s6;
+    delete s5;
+    delete s4;
+    delete s3;
+    delete s2;
+    delete s1;
 }
 /*
 Expected output:
@@ -145,8 +152,8 @@ int main() {
     // tc2();
     // tc21();
     // tc22();
-    // tc23();
-    tc24();
+    tc23();
+    // tc24();
     // tc25();
     return 0;
 }
